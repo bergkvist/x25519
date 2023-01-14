@@ -1,0 +1,105 @@
+diff --git a/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c b/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c
+index 4272ae24..807f00fb 100644
+--- a/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c
++++ b/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c
+@@ -93,9 +93,6 @@ crypto_scalarmult_curve25519_ref10(unsigned char *q,
+     for (i = 0; i < 32; i++) {
+         t[i] = n[i];
+     }
+-    t[0] &= 248;
+-    t[31] &= 127;
+-    t[31] |= 64;
+     fe25519_frombytes(x1, p);
+     fe25519_1(x2);
+     fe25519_0(z2);
+@@ -163,9 +160,6 @@ crypto_scalarmult_curve25519_ref10_base(unsigned char *q,
+     for (i = 0; i < 32; i++) {
+         t[i] = n[i];
+     }
+-    t[0] &= 248;
+-    t[31] &= 127;
+-    t[31] |= 64;
+     ge25519_scalarmult_base(&A, t);
+     edwards_to_montgomery(pk, A.Y, A.Z);
+     fe25519_tobytes(q, pk);
+diff --git a/src/libsodium/crypto_scalarmult/curve25519/scalarmult_curve25519.c b/src/libsodium/crypto_scalarmult/curve25519/scalarmult_curve25519.c
+index 2d3ffc05..14763640 100644
+--- a/src/libsodium/crypto_scalarmult/curve25519/scalarmult_curve25519.c
++++ b/src/libsodium/crypto_scalarmult/curve25519/scalarmult_curve25519.c
+@@ -49,11 +49,5 @@ int
+ _crypto_scalarmult_curve25519_pick_best_implementation(void)
+ {
+     implementation = &crypto_scalarmult_curve25519_ref10_implementation;
+-
+-#ifdef HAVE_AVX_ASM
+-    if (sodium_runtime_has_avx()) {
+-        implementation = &crypto_scalarmult_curve25519_sandy2x_implementation;
+-    }
+-#endif
+     return 0;
+ }
+diff --git a/src/libsodium/crypto_scalarmult/ed25519/ref10/scalarmult_ed25519_ref10.c b/src/libsodium/crypto_scalarmult/ed25519/ref10/scalarmult_ed25519_ref10.c
+index 7c980893..d543cd0a 100644
+--- a/src/libsodium/crypto_scalarmult/ed25519/ref10/scalarmult_ed25519_ref10.c
++++ b/src/libsodium/crypto_scalarmult/ed25519/ref10/scalarmult_ed25519_ref10.c
+@@ -23,8 +23,6 @@ _crypto_scalarmult_ed25519_is_inf(const unsigned char s[32])
+ static inline void
+ _crypto_scalarmult_ed25519_clamp(unsigned char k[32])
+ {
+-    k[0] &= 248;
+-    k[31] |= 64;
+ }
+ 
+ static int
+diff --git a/src/libsodium/crypto_sign/ed25519/ref10/keypair.c b/src/libsodium/crypto_sign/ed25519/ref10/keypair.c
+index e8e40150..1f68b592 100644
+--- a/src/libsodium/crypto_sign/ed25519/ref10/keypair.c
++++ b/src/libsodium/crypto_sign/ed25519/ref10/keypair.c
+@@ -16,9 +16,6 @@ crypto_sign_ed25519_seed_keypair(unsigned char *pk, unsigned char *sk,
+     ge25519_p3 A;
+ 
+     crypto_hash_sha512(sk, seed, 32);
+-    sk[0] &= 248;
+-    sk[31] &= 127;
+-    sk[31] |= 64;
+ 
+     ge25519_scalarmult_base(&A, sk);
+     ge25519_p3_tobytes(pk, &A);
+@@ -73,9 +70,6 @@ crypto_sign_ed25519_sk_to_curve25519(unsigned char *curve25519_sk,
+     unsigned char h[crypto_hash_sha512_BYTES];
+ 
+     crypto_hash_sha512(h, ed25519_sk, 32);
+-    h[0] &= 248;
+-    h[31] &= 127;
+-    h[31] |= 64;
+     memcpy(curve25519_sk, h, crypto_scalarmult_curve25519_BYTES);
+     sodium_memzero(h, sizeof h);
+ 
+diff --git a/src/libsodium/crypto_sign/ed25519/ref10/obsolete.c b/src/libsodium/crypto_sign/ed25519/ref10/obsolete.c
+index 64ded79e..2bd45228 100644
+--- a/src/libsodium/crypto_sign/ed25519/ref10/obsolete.c
++++ b/src/libsodium/crypto_sign/ed25519/ref10/obsolete.c
+@@ -19,9 +19,6 @@ crypto_sign_edwards25519sha512batch_keypair(unsigned char *pk,
+ 
+     randombytes_buf(sk, 32);
+     crypto_hash_sha512(sk, sk, 32);
+-    sk[0] &= 248;
+-    sk[31] &= 127;
+-    sk[31] |= 64;
+     ge25519_scalarmult_base(&A, sk);
+     ge25519_p3_tobytes(pk, &A);
+ 
+diff --git a/src/libsodium/crypto_sign/ed25519/ref10/sign.c b/src/libsodium/crypto_sign/ed25519/ref10/sign.c
+index bbdd8f72..c7ad760b 100644
+--- a/src/libsodium/crypto_sign/ed25519/ref10/sign.c
++++ b/src/libsodium/crypto_sign/ed25519/ref10/sign.c
+@@ -27,9 +27,6 @@ _crypto_sign_ed25519_ref10_hinit(crypto_hash_sha512_state *hs, int prehashed)
+ static inline void
+ _crypto_sign_ed25519_clamp(unsigned char k[32])
+ {
+-    k[0] &= 248;
+-    k[31] &= 127;
+-    k[31] |= 64;
+ }
+ 
+ #ifdef ED25519_NONDETERMINISTIC

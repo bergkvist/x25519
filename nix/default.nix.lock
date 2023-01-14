@@ -1,0 +1,3 @@
+[nixpkgs]
+commit = "1121c8fcb74f53340f044eff6fa47af449617e0d"
+sha256 = "0sdbdcijz4l24kazr0frs3py2w2ficnz7nlgv61dzapi392sm24p"
